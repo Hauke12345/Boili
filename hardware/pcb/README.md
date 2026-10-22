@@ -5,6 +5,7 @@ It fetches Nord Pool spot prices over WiFi and switches the **contactor coil**, 
 The tank's own thermostat and over-temperature limiter stay in series with the heater element.
 
 KiCad 9 project. ERC: 0 errors / 0 warnings. DRC: 0 violations, 0 unconnected, schematic parity OK.
+SPICE checks (relay driver, boot, supply rails, power-up) are in [`simulation/`](simulation).
 
 ## Files
 | Path | What |

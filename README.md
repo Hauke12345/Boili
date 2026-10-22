@@ -6,13 +6,14 @@
 
 This is a concept project designed together with Claude (Opus 5.5). It covers the circuit and PCB in KiCad, an injection-moulded enclosure in FreeCAD, renders and animations in Blender, and a mock-up sales page at **[boili.frenzyfront.io](https://boili.frenzyfront.io)**.
 
-> **Status: design files only.** The board and enclosure have not been built or tested on real hardware, there is no firmware yet, and nothing here is certified (CE / LVD / EMC). It is a mains-voltage device: wiring must be done by a qualified electrician, and Boili only switches a contactor coil. It never carries the heater current itself.
+> **Status: design files only.** The circuit has been checked in SPICE simulation, but the board and enclosure have not been built or tested on real hardware, there is no firmware yet, and nothing here is certified (CE / LVD / EMC). It is a mains-voltage device: wiring must be done by a qualified electrician, and Boili only switches a contactor coil. It never carries the heater current itself.
 
 ## Contents
 
 | Folder | What |
 |---|---|
 | [`hardware/pcb`](hardware/pcb) | KiCad 9 project (rev 1.0): schematic, 2-layer PCB, Gerbers, drill and pick-and-place files ready for a PCB fab, plus BOM, schematic PDF and 3D render. ERC and DRC are clean. See its README for the pinout, wiring and design choices. |
+| [`hardware/pcb/simulation`](hardware/pcb/simulation) | ngspice checks of the relay driver, boot behaviour, supply rails under WiFi bursts, and power-up sequencing, with worst-case part values. All pass. One open point: the AMS1117 with ceramic output capacitors (see that README). |
 | [`hardware/enclosure`](hardware/enclosure) | Two-part PC/ABS (V-0) injection-moulded enclosure with the BOILI logo embossed: STEP files for the toolmaker, the FreeCAD document, the parametric `housing.py` source and a fit/clearance report. Target IP54. |
 | [`website`](website) | The mock-up sales page (`index.html` + `media/`). It illustrates Opus 5.5 capabilities and is not a real product listing. |
 | [`media/videos`](media/videos) | Explainer animation, PCB design speedrun, enclosure modelling speedrun, and the combined film. |

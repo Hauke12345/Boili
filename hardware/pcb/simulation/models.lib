@@ -1,0 +1,47 @@
+* ---- Device models for the Boili PCB simulation -------------------------
+* Values from datasheets where available; marked "approx" where a generic
+* model stands in for a vendor model.
+
+* AO3400A (AOS datasheet): VDS 30 V, VGS(th) 0.65/1.05/1.45 V, RDS(on) 19 mOhm typ @4.5 V,
+* 24 mOhm typ / 48 mOhm max @2.5 V, Ciss 630 pF, Crss 50 pF, Coss 75 pF, Rg 3 Ohm typ.
+* Level-1 core fitted to the two RDS(on) points; capacitances added externally.
+.subckt AO3400A d g s params: VT=1.05 KP=80
+Rg g gi 3
+M1 di gi si si NCORE W=1 L=1
+.model NCORE NMOS (LEVEL=1 VTO={VT} KP={KP} LAMBDA=0.01)
+Rd d di 0.008
+Rs si s 0.007
+Cgs gi si 580p
+Cgd gi di 50p
+Cds di si 25p
+Dbody s d DBODY
+.model DBODY D (IS=1e-12 N=1.2 RS=0.02 BV=32 CJO=60p TT=10n)
+.ends
+
+* SS14 Schottky, 1 A 40 V (approx generic Schottky: ~0.3 V @ 50 mA, ~0.5 V @ 1 A)
+.model SS14 D (IS=2.3u RS=0.045 N=1.1 CJO=160p M=0.5 VJ=0.4 BV=40 IBV=1m)
+
+* 0805 red LED (approx: ~1.8-1.9 V at a few mA)
+.model LEDR D (IS=1e-19 N=2.0 RS=10 CJO=20p BV=5 IBV=10u)
+
+* Omron G5Q-1A 5 VDC coil (Omron datasheet J155): 125 Ohm, 40 mA rated,
+* must-operate <= 75 % (3.75 V), must-release >= 5 % (0.25 V).
+* Coil inductance is NOT in the datasheet -> swept (parameter LCOIL).
+.subckt G5QCOIL a b params: LCOIL=0.2
+Vsns a a2 0
+L1 a2 m {LCOIL}
+R1 m b 125
+.ends
+
+* ---- Boili relay driver as on the board (net names from the KiCad netlist) ----
+* HEAT_EN (GPIO26) -> R3 100R -> GATE, R4 100k GATE->GND, Q1 AO3400A,
+* K1 coil +5V -> RELAY_DRV, D1 SS14 RELAY_DRV -> +5V, R5 1k + D2 red LED +5V -> RELAY_DRV
+.subckt DRIVER v5 heat_en gnd params: VT=1.05 KP=80 LCOIL=0.2
+R3 heat_en gate 100
+R4 gate gnd 100k
+XQ1 drv gate gnd AO3400A VT={VT} KP={KP}
+XK1 v5 drv G5QCOIL LCOIL={LCOIL}
+D1 drv v5 SS14
+R5 v5 leda 1k
+D2 leda drv LEDR
+.ends
