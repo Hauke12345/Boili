@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boili · Hot water when electricity is cheapest (concept)</title>
+<meta name="description" content="Boili is a concept product: an ESP32 controller that heats your water tank in the cheapest spot-price hours. A design study made with Claude Opus 5.5. Not a real product.">
+<meta property="og:title" content="Boili: concept spot-price water heater controller">
+<meta property="og:description" content="Concept mock-up made with Claude Opus 5.5: circuit, PCB, enclosure, renders and videos.">
+<meta property="og:image" content="media/product.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4C22 18 12 28 12 40a20 20 0 0 0 40 0C52 28 42 18 32 4z' fill='%23ff8a3d'/%3E%3Cpath d='M35 22 24 40h8l-3 14 11-19h-8z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0b1018; --bg2:#111826; --card:#151e2e; --line:#243046;
+  --text:#e8edf5; --muted:#9aa7bd; --heat:#ff8a3d; --heat2:#ffb15c; --cheap:#3ddc84; --blue:#5aa9ff; --warn:#ffd25c;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif;line-height:1.1;margin:0 0 .5em}
+a{color:var(--heat2)}
+img,video{max-width:100%;display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+
+/* concept notice */
+.notice{background:linear-gradient(90deg,#3a2a0b,#2a1f0c);border-bottom:1px solid #5a4313;color:#ffe6b3;font-size:14px}
+.notice .wrap{display:flex;gap:12px;align-items:center;padding-top:10px;padding-bottom:10px}
+.notice b{color:var(--warn)}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.pill.warn{background:var(--warn);color:#2a1f0c;flex:none}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:rgba(11,16,24,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font:700 24px "Space Grotesk";color:var(--text);text-decoration:none}
+.logo svg{width:30px;height:30px}
+nav .links{display:flex;gap:22px;margin-left:auto}
+nav .links a{color:var(--muted);text-decoration:none;font-size:15px}
+nav .links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;border-radius:12px;padding:12px 20px;font:600 15px Inter;text-decoration:none;transition:transform .15s,box-shadow .15s}
+.btn.primary{background:linear-gradient(135deg,var(--heat),#ff6a2b);color:#1a0d04;box-shadow:0 8px 30px -10px rgba(255,120,50,.7)}
+.btn.primary:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:#3a4a66}
+
+/* hero */
+.hero{position:relative;overflow:hidden;min-height:min(74vh,640px);display:flex;align-items:center;padding:80px 0 70px;background:#0e0f12}
+.hero-bg{position:absolute;inset:0}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:100% 50%}
+.hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,16,24,.94) 0%,rgba(11,16,24,.78) 34%,rgba(11,16,24,.18) 60%,rgba(11,16,24,0) 75%),linear-gradient(0deg,rgba(11,16,24,.85),rgba(11,16,24,0) 30%)}
+.hero .wrap{position:relative;width:100%}
+.hero-copy{max-width:560px}
+.hero h1{font-size:clamp(40px,5.6vw,68px);letter-spacing:-.02em}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--heat),var(--heat2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.fi{color:var(--muted);font-style:italic;margin:-4px 0 18px}
+.lead{font-size:19px;color:#c9d3e3;max-width:560px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 18px}
+.price{display:flex;align-items:baseline;gap:10px;color:var(--muted);font-size:14px}
+.price strong{font:700 30px "Space Grotesk";color:var(--text)}
+.frame{border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:linear-gradient(135deg,#1a2436,#0f1520);aspect-ratio:16/9;position:relative}
+.frame img,.frame video{width:100%;height:100%;object-fit:cover}
+.frame.contain{background:#0c0f16}.frame.contain img{object-fit:contain}
+.chip{position:absolute;right:20px;bottom:-30px;background:rgba(17,24,38,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:14px 16px;width:300px;box-shadow:0 20px 50px -20px rgba(0,0,0,.8)}
+.chip .t{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.chip .t b{color:var(--cheap)}
+.chip svg{width:100%;height:64px;margin-top:6px}
+
+/* strip */
+.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
+.strip .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding-top:22px;padding-bottom:22px}
+.strip div{display:flex;gap:12px;align-items:center;color:#c9d3e3;font-size:14px}
+.strip svg{flex:none;width:26px;height:26px;color:var(--heat2)}
+
+section{padding:88px 0}
+.kicker{color:var(--heat2);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.sec-h{max-width:720px;margin-bottom:40px}
+.sec-h h2{font-size:clamp(30px,3.6vw,44px)}
+.sec-h p{color:var(--muted);font-size:18px;margin:0}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.step .frame{border:0;border-radius:0}
+.step .body{padding:20px 22px 24px}
+.step .n{font:700 14px "Space Grotesk";color:var(--heat2)}
+.step h3{font-size:22px;margin:4px 0 6px}
+.step p{color:var(--muted);margin:0;font-size:15px}
+.video-wide{margin-top:28px}
+.video-wide .frame{aspect-ratio:16/9}
+.caption{color:var(--muted);font-size:13px;margin-top:10px}
+
+/* savings */
+.calc{display:grid;grid-template-columns:1.25fr 1fr;gap:24px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
+.chart{height:220px;display:flex;align-items:flex-end;gap:5px;padding-top:10px}
+.bar{flex:1;border-radius:5px 5px 2px 2px;background:#33435f;position:relative;transition:background .3s,height .4s}
+.bar.cheap{background:linear-gradient(180deg,#5af0a0,#22b86a)}
+.bar:hover:after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translate(-50%,-6px);background:#000c;padding:3px 7px;border-radius:6px;font-size:12px;white-space:nowrap}
+.hours{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:8px}
+.ctrl{margin:18px 0 6px}
+.ctrl label{display:flex;justify-content:space-between;font-size:14px;color:#c9d3e3;margin-bottom:8px}
+.ctrl label b{color:var(--text)}
+input[type=range]{width:100%;accent-color:var(--heat)}
+.big{font:700 52px "Space Grotesk";letter-spacing:-.02em}
+.big small{font-size:20px;color:var(--muted);font-weight:500}
+.kv{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.kv span{color:var(--muted)}
+.fine{color:var(--muted);font-size:12.5px;margin-top:14px}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* features */
+.features{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.feat svg{width:30px;height:30px;color:var(--heat2);margin-bottom:12px}
+.feat h3{font-size:18px;margin-bottom:6px}
+.feat p{color:var(--muted);font-size:14.5px;margin:0}
+
+/* engineering */
+.eng{background:linear-gradient(180deg,var(--bg),#0d1420 30%,var(--bg))}
+.eng-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.eng-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.eng-card .body{padding:20px 22px 24px}
+.eng-card h3{font-size:22px}
+.eng-card p{color:var(--muted);margin:0 0 10px;font-size:15px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tags span{font-size:12.5px;border:1px solid var(--line);border-radius:99px;padding:4px 10px;color:#c9d3e3}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:26px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center}
+.stat b{display:block;font:700 26px "Space Grotesk";color:var(--cheap)}
+.stat span{font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:8px;margin:0 0 12px}
+.tabs button{background:var(--bg2);border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:7px 12px;font:500 13px Inter;cursor:pointer}
+.tabs button.on{color:var(--text);border-color:var(--heat)}
+
+/* install */
+.install{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center}
+.install svg{width:100%;height:auto}
+.warnbox{border:1px solid #5a4313;background:#2a1f0c;color:#ffe6b3;border-radius:14px;padding:16px 18px;font-size:14.5px;margin-top:14px}
+
+/* specs */
+table{width:100%;border-collapse:collapse;font-size:15px}
+td{padding:12px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:var(--muted);width:36%}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+
+/* faq */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between}
+summary:after{content:"+";color:var(--heat2);font-size:20px;line-height:1}
+details[open] summary:after{content:"–"}
+details p{color:var(--muted);margin:10px 0 0}
+
+/* closing */
+.closing{text-align:center;padding:90px 0;background:radial-gradient(circle at 50% 0,rgba(255,138,61,.15),transparent 60%)}
+.closing h2{font-size:clamp(32px,4vw,52px)}
+footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:20px;max-width:460px;padding:28px}
+.modal .box p{color:#c9d3e3}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+.media-missing{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+
+@media (max-width:900px){
+  nav .links{display:none}
+  nav .js-preorder{margin-left:auto}
+  .calc,.eng-grid,.install,.specs{grid-template-columns:1fr}
+  .hero{display:block;min-height:0;padding:0 0 40px}
+  .hero-bg{position:relative;height:auto;aspect-ratio:4/3}
+  .hero-bg img{object-position:100% 50%}
+  .hero-bg:after{background:linear-gradient(0deg,#0b1018 0%,rgba(11,16,24,0) 40%)}
+  .hero .wrap{margin-top:-30px}
+  .chip{position:relative;right:auto;bottom:auto;margin-top:24px;width:100%}
+  .steps{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr 1fr}
+  .strip .wrap{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(3,1fr)}
+  section{padding:64px 0}
+}
+@media (max-width:520px){.features{grid-template-columns:1fr}.notice .wrap{flex-direction:column;align-items:flex-start;gap:6px}}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="notice" role="note">
+  <div class="wrap">
+    <span class="pill warn">Concept</span>
+    <span><b>Boili is not a real product and is not for sale.</b> This page is a mock-up made to show what <b>Claude Opus 5.5</b> can do. The circuit, PCB layout, enclosure CAD, 3D renders, videos and this page were all made in one conversation.</span>
+  </div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Boili home">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb15c"/><stop offset="1" stop-color="#ff6a2b"/></linearGradient></defs><path d="M32 4C22 18 12 28 12 40a20 20 0 0 0 40 0C52 28 42 18 32 4z" fill="url(#lg)"/><path d="M35 22 24 40h8l-3 14 11-19h-8z" fill="#fff"/></svg>
+      Boili
+    </a>
+    <div class="links">
+      <a href="#how">How it works</a><a href="#savings">Savings</a><a href="#engineering">Engineering</a><a href="#specs">Specs</a><a href="#faq">FAQ</a>
+    </div>
+    <button class="btn primary js-preorder" style="padding:9px 16px">Pre-order</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-bg"><img src="media/product.jpg" alt="Boili controller: a light-grey lid with the BOILI logo, glowing HEAT and STATUS lights, on a dark charcoal base with two cables" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+  <div class="wrap">
+    <div class="hero-copy">
+      <div class="kicker">Spot-price water heater controller</div>
+      <h1>Hot water when electricity is <em>cheapest.</em></h1>
+      <p class="fi" lang="fi">Lämmin vesi, halvin sähkö.</p>
+      <p class="lead">Each evening Boili reads tomorrow's Nord Pool prices and runs your electric water heater only in the cheapest hours. Your thermostat and over-heat limiter stay exactly as they are.</p>
+      <div class="cta">
+        <a class="btn primary" href="#how">See how it works</a>
+        <a class="btn ghost" href="#savings">Calculate savings</a>
+      </div>
+      <div class="price"><strong>€89</strong> example price · concept only · not for sale</div>
+    </div>
+    <div class="chip" aria-label="Example: tomorrow's cheapest hours">
+      <div class="t"><span>Tomorrow · c/kWh</span><b id="chipWin">Heats 02–06</b></div>
+      <svg id="chipChart" viewBox="0 0 240 64" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="wrap">
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg>WiFi · Nord Pool prices, no subscription</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 22a6 6 0 0 0 4-10.5V4a4 4 0 0 0-8 0v7.5A6 6 0 0 0 12 22z"/></svg>Keeps your thermostat + limiter</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="m9 12 2 2 4-4"/></svg>Safe default if the internet drops</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h4M7 14h2"/></svg>Sealed IP54 enclosure, wall-mounted</div>
+  </div>
+</div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="kicker">How it works</div>
+      <h2>Three steps, every day, automatically.</h2>
+      <p>Boili switches the coil of your heater's contactor and nothing else. The heater's own safety devices stay in charge.</p>
+    </div>
+    <div class="steps">
+      <article class="step reveal">
+        <div class="frame"><img src="media/wifi.jpg" alt="ESP32 module sending WiFi signals" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+        <div class="body"><div class="n">01</div><h3>Reads the prices</h3><p>Over WiFi, the ESP32 fetches tomorrow's hourly spot prices for Finland as soon as they're published.</p></div>
+      </article>
+      <article class="step reveal">
+        <div class="frame"><img src="media/hero.jpg" alt="Boili board with relay" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+        <div class="body"><div class="n">02</div><h3>Picks the cheapest hours</h3><p>It schedules the heating window you need, usually the night dip, and lights the HEAT LED while it runs.</p></div>
+      </article>
+      <article class="step reveal">
+        <div class="frame"><img src="media/system.jpg" alt="Water heater heating up, driven by a contactor" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+        <div class="body"><div class="n">03</div><h3>Switches the contactor</h3><p>A relay energises your heater's contactor. The thermostat and limiter still decide when the water is hot enough.</p></div>
+      </article>
+    </div>
+    <div class="video-wide reveal">
+      <div class="frame"><video src="media/explainer.mp4" poster="media/system.jpg" controls preload="none" playsinline></video></div>
+      <div class="caption">Explainer (54 s): current flows along the real copper tracks of the Boili PCB. Rendered in Blender.</div>
+    </div>
+  </div>
+</section>
+
+<section id="savings" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="kicker">Savings</div>
+      <h2>Same hot water. Cheaper hours.</h2>
+      <p>Drag the sliders. The chart shows an example winter day; real prices change every day.</p>
+    </div>
+    <div class="calc">
+      <div class="panel reveal">
+        <div class="legend"><span><i style="background:#33435f"></i>Spot price</span><span><i style="background:#3ddc84"></i>Boili heats</span></div>
+        <div class="chart" id="chart" aria-label="Example hourly spot prices"></div>
+        <div class="hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+        <div class="ctrl">
+          <label for="hrs">Heating hours needed per day <b id="hrsV">4 h</b></label>
+          <input id="hrs" type="range" min="1" max="10" value="4">
+        </div>
+      </div>
+      <div class="panel reveal">
+        <div class="ctrl" style="margin-top:0">
+          <label for="kwh">Hot water energy per day <b id="kwhV">10 kWh</b></label>
+          <input id="kwh" type="range" min="3" max="25" value="10">
+        </div>
+        <div class="kv"><span>Average price, whole day</span><b id="avgAll">–</b></div>
+        <div class="kv"><span>Average price, Boili hours</span><b id="avgBoili" style="color:var(--cheap)">–</b></div>
+        <div class="kv"><span>Saving per kWh</span><b id="pct">–</b></div>
+        <div style="margin-top:20px;color:var(--muted);font-size:14px">Estimated saving per year</div>
+        <div class="big" id="year">–<small> €</small></div>
+        <p class="fine">Illustration only: the example day repeated for a year, compared with heating at the day's average price. Real savings depend on prices, your tank and your hot water use.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="kicker">Features</div>
+      <h2>Small box, sensible decisions.</h2>
+    </div>
+    <div class="features">
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><h3>Boost button</h3><p>Need a shower now? Press BOOST on the lid to heat immediately, whatever the price.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>Fallback schedule</h3><p>If WiFi or the price feed is down, Boili falls back to a fixed night schedule. You never wake up to cold water.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 14a4 4 0 1 0 8 0c0-3-4-6-4-10-1 3-4 6-4 10z"/></svg><h3>Wood-fire aware</h3><p>Got a wood boiler too? An optional temperature probe lets Boili skip buying electricity when the fire has already heated the tank.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.5-2.5A5 5 0 1 0 17 14"/></svg><h3>Updates over WiFi</h3><p>Firmware updates arrive over the air, with no need to open the box.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><h3>6 mm isolation</h3><p>The 230 V side and the low-voltage side are kept at least 6 mm apart on the PCB, and design rules check it.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg><h3>Two status LEDs</h3><p>HEAT and STATUS shine through light pipes in the lid, so you can see what it's doing at a glance.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/></svg><h3>Wall mount</h3><p>Four slotted ears and two cable glands. It goes next to the heater's existing contactor.</p></div>
+      <div class="feat reveal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg><h3>No app required</h3><p>Set it up once over WiFi. After that it just works, every day.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="engineering" class="eng">
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="kicker">Engineering</div>
+      <h2>Designed end to end in one conversation.</h2>
+      <p>The schematic, PCB, enclosure, renders and videos were all made by Claude Opus 5.5 with KiCad 9, FreeCAD 1.0 and Blender, and checked with each tool's own design checks.</p>
+    </div>
+    <div class="eng-grid">
+      <article class="eng-card reveal">
+        <div class="tabs" style="padding:16px 16px 0" data-group="pcb">
+          <button class="on" data-show="pcb-img">Layout</button><button data-show="pcb-layers">Layer stack</button><button data-show="pcb-vid">Speedrun video</button>
+        </div>
+        <div style="padding:0 16px">
+          <div class="frame contain" data-pane="pcb-img"><img src="media/pcb.jpg" alt="Routed two-layer PCB in KiCad" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+          <div class="frame contain" data-pane="pcb-layers" hidden><img src="media/layers.jpg" alt="Exploded PCB layer stack" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+          <div class="frame" data-pane="pcb-vid" hidden><video src="media/pcb.mp4" poster="media/pcb.jpg" controls preload="none" playsinline></video></div>
+        </div>
+        <div class="body">
+          <h3>Circuit + PCB · KiCad 9</h3>
+          <p>An isolated HLK-PM01 supply, an AMS1117 regulator, an ESP32-WROOM-32E and a relay driver with a flyback diode, on a two-layer board of 96.5 × 62 mm with a ground plane on the bottom.</p>
+          <div class="tags"><span>Mains tracks 1.5 mm</span><span>Bottom GND pour</span><span>Gerbers + BOM + pick &amp; place</span></div>
+        </div>
+      </article>
+      <article class="eng-card reveal">
+        <div class="tabs" style="padding:16px 16px 0" data-group="enc">
+          <button class="on" data-show="enc-img">Closed</button><button data-show="enc-exp">Exploded</button><button data-show="enc-vid">Speedrun video</button>
+        </div>
+        <div style="padding:0 16px">
+          <div class="frame" data-pane="enc-img"><img src="media/enclosure.jpg" alt="Closed Boili enclosure with cable glands" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+          <div class="frame" data-pane="enc-exp" hidden><img src="media/enclosure_exploded.jpg" alt="Exploded enclosure with PCB, gasket and screws" loading="lazy" onerror="this.parentNode.classList.add('media-missing');this.remove()"></div>
+          <div class="frame" data-pane="enc-vid" hidden><video src="media/enclosure.mp4" poster="media/enclosure.jpg" controls preload="none" playsinline></video></div>
+        </div>
+        <div class="body">
+          <h3>Enclosure · FreeCAD 1.0</h3>
+          <p>An injection-moulded base and lid in flame-rated (UL94 V-0) PC/ABS, with 2.5 mm walls and 1° draft. A tongue-and-groove gasket aims for IP54, and the lid has a moulded flex button and light pipes.</p>
+          <div class="tags"><span>133 × 73 × 33 mm</span><span>2 × M16 glands</span><span>STEP per part</span></div>
+        </div>
+      </article>
+    </div>
+    <div class="stats">
+      <div class="stat reveal"><b>0</b><span>ERC errors</span></div>
+      <div class="stat reveal"><b>0</b><span>DRC violations</span></div>
+      <div class="stat reveal"><b>6 mm</b><span>mains creepage</span></div>
+      <div class="stat reveal"><b>0.000</b><span>mm³ PCB-to-enclosure clash</span></div>
+      <div class="stat reveal"><b>28</b><span>parts on the board</span></div>
+      <div class="stat reveal"><b>2.1 mm</b><span>lid-to-part clearance</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap install">
+    <div class="reveal">
+      <svg viewBox="0 0 560 300" role="img" aria-label="Wiring: mains to Boili, Boili to contactor coil, contactor and thermostat to heater">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#9aa7bd"/></marker></defs>
+        <g font-family="Inter" font-size="13" fill="#e8edf5">
+          <rect x="10" y="40" width="110" height="60" rx="12" fill="#151e2e" stroke="#243046"/><text x="65" y="68" text-anchor="middle" font-weight="600">230 V supply</text><text x="65" y="86" text-anchor="middle" fill="#9aa7bd" font-size="11">protected circuit</text>
+          <rect x="190" y="30" width="150" height="80" rx="14" fill="#2a1a0e" stroke="#ff8a3d"/><text x="265" y="64" text-anchor="middle" font-weight="700" font-size="18" fill="#ffb15c">Boili</text><text x="265" y="86" text-anchor="middle" fill="#9aa7bd" font-size="11">switches the coil only</text>
+          <rect x="410" y="30" width="140" height="80" rx="12" fill="#151e2e" stroke="#243046"/><text x="480" y="64" text-anchor="middle" font-weight="600">Contactor</text><text x="480" y="84" text-anchor="middle" fill="#9aa7bd" font-size="11">coil A1 / A2</text>
+          <rect x="300" y="190" width="160" height="70" rx="12" fill="#151e2e" stroke="#243046"/><text x="380" y="220" text-anchor="middle" font-weight="600">Thermostat + limiter</text><text x="380" y="240" text-anchor="middle" fill="#3ddc84" font-size="11">unchanged, in series</text>
+          <rect x="60" y="190" width="160" height="70" rx="12" fill="#151e2e" stroke="#243046"/><text x="140" y="220" text-anchor="middle" font-weight="600">Heating element</text><text x="140" y="240" text-anchor="middle" fill="#9aa7bd" font-size="11">3–6 kW</text>
+          <path d="M120 70H186" stroke="#9aa7bd" stroke-width="2" marker-end="url(#ar)" fill="none"/>
+          <path d="M340 70H406" stroke="#ff8a3d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ar)" fill="none"/>
+          <path d="M480 110V225H464" stroke="#9aa7bd" stroke-width="3" marker-end="url(#ar)" fill="none"/>
+          <path d="M300 225H224" stroke="#9aa7bd" stroke-width="3" marker-end="url(#ar)" fill="none"/>
+          <text x="373" y="62" text-anchor="middle" fill="#ffb15c" font-size="11">control</text>
+          <text x="472" y="160" text-anchor="end" fill="#9aa7bd" font-size="11">heater power</text>
+        </g>
+      </svg>
+    </div>
+    <div class="reveal">
+      <div class="kicker">Installation</div>
+      <h2 style="font-size:36px">Next to your heater's contactor.</h2>
+      <p style="color:var(--muted)">Boili controls the contactor coil, so the heater current never passes through the box. Two cable glands bring in mains and run out to the coil. The thermostat and over-heat limiter stay in series with the element, so they can always switch it off.</p>
+      <div class="warnbox">⚠ Mains wiring and contactor installation must be done by a qualified electrician.</div>
+    </div>
+  </div>
+</section>
+
+<section id="specs" style="background:var(--bg2);border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-h reveal"><div class="kicker">Specifications</div><h2>The details.</h2></div>
+    <div class="specs reveal">
+      <table>
+        <tr><td>Supply</td><td>230 VAC 50 Hz, T1A fuse, varistor surge protection</td></tr>
+        <tr><td>Internal supply</td><td>HLK-PM01 isolated 5 V, AMS1117 3.3 V</td></tr>
+        <tr><td>Controller</td><td>ESP32-WROOM-32E, 2.4 GHz WiFi</td></tr>
+        <tr><td>Output</td><td>Omron G5Q-1A relay for a 230 VAC contactor coil</td></tr>
+        <tr><td>Price data</td><td>Nord Pool day-ahead, Finland area</td></tr>
+        <tr><td>Indicators</td><td>HEAT (red), STATUS (green) via light pipes</td></tr>
+      </table>
+      <table>
+        <tr><td>Inputs</td><td>BOOST button, optional DS18B20 tank probe</td></tr>
+        <tr><td>PCB</td><td>2-layer FR-4, 1.6 mm, 96.5 × 62 mm, 6 mm mains creepage</td></tr>
+        <tr><td>Enclosure</td><td>PC/ABS UL94 V-0, 133 × 73 × 33 mm (95 mm with ears)</td></tr>
+        <tr><td>Protection</td><td>IP54 target, tongue-and-groove TPE gasket</td></tr>
+        <tr><td>Cable entry</td><td>2 × M16 × 1.5 cable glands</td></tr>
+        <tr><td>Weight</td><td>About 100 g plastics + PCB</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap" style="max-width:820px">
+    <div class="sec-h reveal"><div class="kicker">FAQ</div><h2>Questions</h2></div>
+    <details class="reveal"><summary>Can I actually buy Boili?</summary><p>No. Boili is a concept made to show Claude Opus 5.5's abilities in electronics, mechanical design and media production. The prices, ordering and availability on this page are illustrative only.</p></details>
+    <details class="reveal"><summary>What happens if the internet goes down?</summary><p>Boili keeps the last schedule it received. If it has none, it falls back to heating at a fixed time overnight, so the tank is never left cold.</p></details>
+    <details class="reveal"><summary>Does it replace my thermostat?</summary><p>No. Boili only decides <em>when</em> heating is allowed. The tank's own thermostat and over-heat limiter stay in series and still decide whether the element runs.</p></details>
+    <details class="reveal"><summary>I also heat with wood. Will it waste electricity?</summary><p>With the optional tank probe, Boili sees that the water is already hot and skips the electric heating window.</p></details>
+    <details class="reveal"><summary>How was this made?</summary><p>In one conversation with Claude Opus 5.5. It designed the circuit and routed the PCB in KiCad, checked them, modelled the injection-moulded enclosure in FreeCAD with a clearance check, rendered the 3D animation in Blender, and wrote this page.</p></details>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap reveal">
+    <h2>Heat the water in the cheapest hours.</h2>
+    <p style="color:var(--muted);font-size:18px">A frenzyfront.io concept · designed with Claude Opus 5.5</p>
+    <div class="cta" style="justify-content:center"><button class="btn primary js-preorder">Pre-order</button><a class="btn ghost" href="#engineering">See the engineering</a></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Boili concept · frenzyfront.io</span>
+    <span><b style="color:var(--warn)">Concept mock-up.</b> Not a real product, not for sale. Made to show Claude Opus 5.5's capabilities.</span>
+  </div>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="box">
+    <span class="pill warn">Concept</span>
+    <h3 id="mt" style="margin-top:14px;font-size:26px">Boili isn't for sale</h3>
+    <p>This is a mock-up sales page that shows what Claude Opus 5.5 can design: the electronics, PCB, enclosure, renders and this website. There is no shop and no order, and nothing you type here is collected.</p>
+    <button class="btn primary" id="close">Got it</button>
+  </div>
+</div>
+
+<script>
+// example day of spot prices (c/kWh), as used in the explainer video
+const P=[6.1,5.2,4.3,3.9,4.1,4.6,7.8,12.4,15.1,13.2,9.8,8.1,7.2,6.9,7.5,9.4,12.8,16.9,18.2,14.5,10.1,8.2,6.4,5.5];
+const max=Math.max(...P), avg=P.reduce((a,b)=>a+b)/P.length;
+const chart=document.getElementById('chart');
+P.forEach((p,h)=>{const b=document.createElement('div');b.className='bar';b.style.height=(p/max*100)+'%';b.dataset.tip=`${String(h).padStart(2,'0')}:00 · ${p.toFixed(1)} c`;chart.appendChild(b)});
+const bars=[...chart.children];
+const hrs=document.getElementById('hrs'), kwh=document.getElementById('kwh');
+const fmt=v=>v.toFixed(1).replace('.',',')+' c/kWh';
+function update(){
+  const n=+hrs.value, e=+kwh.value;
+  const cheap=[...P.keys()].sort((a,b)=>P[a]-P[b]).slice(0,n);
+  bars.forEach((b,i)=>b.classList.toggle('cheap',cheap.includes(i)));
+  const cAvg=cheap.reduce((s,i)=>s+P[i],0)/n;
+  document.getElementById('hrsV').textContent=n+' h';
+  document.getElementById('kwhV').textContent=e+' kWh';
+  document.getElementById('avgAll').textContent=fmt(avg);
+  document.getElementById('avgBoili').textContent=fmt(cAvg);
+  document.getElementById('pct').textContent='−'+Math.round((1-cAvg/avg)*100)+' %';
+  document.getElementById('year').firstChild.textContent=Math.round(e*365*(avg-cAvg)/100);
+}
+hrs.oninput=kwh.oninput=update; update();
+
+// hero chip mini chart
+(function(){
+  const s=document.getElementById('chipChart'), w=240/24, cheap=[2,3,4,5];
+  s.innerHTML=P.map((p,i)=>`<rect x="${i*w+1}" y="${64-p/max*60}" width="${w-2}" height="${p/max*60}" rx="1.5" fill="${cheap.includes(i)?'#3ddc84':'#33435f'}"><animate attributeName="height" from="0" to="${p/max*60}" dur=".8s" begin="${i*0.03}s" fill="freeze"/><animate attributeName="y" from="64" to="${64-p/max*60}" dur=".8s" begin="${i*0.03}s" fill="freeze"/></rect>`).join('');
+})();
+
+// tabs
+document.querySelectorAll('.tabs').forEach(t=>{
+  t.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    t.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    const card=t.closest('.eng-card');
+    card.querySelectorAll('[data-pane]').forEach(p=>{const on=p.dataset.pane===b.dataset.show;p.hidden=!on;if(!on)p.querySelectorAll('video').forEach(v=>v.pause())});
+  });
+});
+
+// mock pre-order modal
+const modal=document.getElementById('modal');
+document.querySelectorAll('.js-preorder').forEach(b=>b.onclick=()=>modal.classList.add('on'));
+document.getElementById('close').onclick=()=>modal.classList.remove('on');
+modal.onclick=e=>{if(e.target===modal)modal.classList.remove('on')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')modal.classList.remove('on')});
+
+// reveal on scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+(version 1)
+
+# 230 VAC isolation: keep everything on the mains side at least 6 mm (air and surface) from low-voltage copper.
+(rule "mains_to_lowvoltage"
+  (condition "A.NetClass == 'Mains' && B.NetClass != 'Mains' && B.Type != 'Hole'")
+  (constraint clearance (min 6.0mm))
+  (constraint creepage (min 6.0mm)))

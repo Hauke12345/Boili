@@ -1,0 +1,27 @@
+{
+ "base": 0.0,
+ "lid": 0.0,
+ "pcb_top_z": 22.9,
+ "lid_clearance_mm": 2.1,
+ "pin_clearance_mm": 2.69,
+ "volume_cm3": {
+  "base": 54.5,
+  "lid": 29.0
+ },
+ "mass_g_PC_ABS": {
+  "base": 62.7,
+  "lid": 33.3
+ },
+ "outer_mm": [
+  133.0,
+  95.0,
+  33.0
+ ],
+ "valid": {
+  "base": true,
+  "lid": true
+ },
+ "glands_vs_pcb": 0.0,
+ "glands_vs_base": 0.0,
+ "glands_vs_lid": 0.0
+}
